@@ -43,4 +43,41 @@ class ExchangeRatesData{
         return $currencyList;
     }
 
+    /**
+     * Returns the latest exchange rate based on the provided base currency
+     *
+     * @param string $commaSeparatedSymbols
+     * @param string $base
+     * @return array
+     */
+    public function getRates(string $commaSeparatedSymbols='', string $base='USD'): array
+    {
+        $rates = [];
+
+        $rest = new Rest(
+            $this->api_url,
+            $this->api_key
+        );
+
+        $ratesResponse = $rest->get("latest", "base={$base}&symbols={$commaSeparatedSymbols}");
+
+        # Throw an error if the response is invalid
+        if(!$ratesResponse->success)
+        {
+            throw new \Exception($ratesResponse->message);
+        }
+
+        foreach($ratesResponse->rates as $symbol=>$rate)
+        {
+            $currency = new \stdClass();
+            
+            $currency->symbol = $symbol;
+            $currency->rate = $rate;
+
+            array_push($rates, $currency);
+        }
+
+        return $rates;
+    }
+
 }
