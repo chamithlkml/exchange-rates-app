@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\View\View;
+use App\Libraries;
+use App\Libraries\ExchangeRatesData;
+use Illuminate\Support\Facades\Log;
 
 class IndexController extends Controller
 {
 
     public function show(): View
     {
+        
+
         $currencies = [
             ['label' => 'Euro', 'rate' => 0.924],
             ['label' => 'British Pound Sterling', 'rate' => 0.775],

@@ -3,7 +3,6 @@ import axios from 'axios'
 export default{
     data(){
         return {
-            title: 'Showing exchange rates',
             currencies: []
         }
     },
@@ -15,8 +14,22 @@ export default{
 </script>
 <template>
     <h1>USD Exchange Rates</h1>
-    <h2>{{ title }}</h2>
-    <ul v-for="currency in currencies">
-        <li>{{ currency['label'] }}</li>
-    </ul>
+    <table>
+        <thead style="background-color: turquoise;">
+            <tr>
+                <th>US Dollar Exchange Rates</th>
+                <th></th>
+            </tr>
+            <tr style="text-align: right">
+                <th>1 USD = </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody v-for="currency in currencies">
+            <tr>
+                <td>{{ currency.label}}</td>
+                <td>{{ currency.rate}}</td>
+            </tr>
+        </tbody>
+    </table>
 </template>
