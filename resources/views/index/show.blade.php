@@ -9,7 +9,9 @@
 </head>
 <body>
 	<div id="app"></div>
-
+	<script>
+		var currencies = {!! json_encode($currencies) !!};
+	</script>
 	@vite('resources/js/app.js')
 </body>
 </html>
