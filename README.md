@@ -6,7 +6,7 @@ Display exchange rates of major currencies with a button to refresh values
 - Run `docker-compose build`
 - Run `docker-compose up -d`
 - Run `docker container ls` to get the running containers. Pick the ID of server container
-- Run `docker-exec  {server-container-id} php artisan migrate`
+- Run `docker-exec  {server-container-id} cd /var/www && php artisan migrate`
 - Open `http://localhost`
 
 ## Cache implementation
