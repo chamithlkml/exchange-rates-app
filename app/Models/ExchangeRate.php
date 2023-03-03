@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Libraries\ExchangeRatesData;
+use Illuminate\Support\Facades\Log;
 
 class ExchangeRate extends Model
 {
@@ -17,25 +18,61 @@ class ExchangeRate extends Model
      */
     public static function getLatestRates(): array
     {
-        $exchangeRateData = new ExchangeRatesData(
-            env('EXCHANGE_RATES_API_ENDPOINT'),
-            env('EXCHANGE_RATES_API_KEY')
-        );
+        $lastUpdatedAt = self::max('updated_at');
 
-        $latestRates = $exchangeRateData->getRates(env('EXCHANGE_RATES_REQUIRED_CURRENCIES'), env('EXCHANGE_RATES_API_BASE'));
+        if(is_null($lastUpdatedAt)){
+            $lastUpdatedAt = date(DATE_RFC2822);
+        }
 
-        foreach($latestRates as $latestRate)
+        $timeDiffInSeconds = time() - strtotime($lastUpdatedAt);
+
+        $latestRates = [];
+
+        Log::info("time diff in seconds: " . $timeDiffInSeconds);
+
+        # If the time difference is less than assigned refresh window then show last updated DB values
+        if($timeDiffInSeconds < intval(env('REFRESH_WINDOW')))
         {
-            $rate = self::where('symbol', '=', $latestRate->symbol);
-            $found_rate = $rate->get();
+            Log::info('reading from database');
 
-            if(count($found_rate) > 0)
+            $requiredSymbols = explode(',', env('EXCHANGE_RATES_REQUIRED_CURRENCIES'));
+
+            $allNonEmptyRates = self::whereRaw('updated_at IS NOT NULL')->get();
+
+            foreach($allNonEmptyRates as $nonEmptyRate)
             {
-                $latestRate->label = $found_rate[0]->currency_label;
+                if(in_array($nonEmptyRate->symbol, $requiredSymbols))
+                {
+                    $nonEmptyRate->label = $nonEmptyRate->currency_label;
+                    array_push($latestRates, $nonEmptyRate);
+                }
             }
 
-            $rate->update(['rate' => $latestRate->rate]);
-
+        }else
+        {
+            # If the time difference is bigger than assigned refresh window, then retrieve from API
+         
+            Log::info('reading from API');
+            $exchangeRateData = new ExchangeRatesData(
+                env('EXCHANGE_RATES_API_ENDPOINT'),
+                env('EXCHANGE_RATES_API_KEY')
+            );
+    
+            $latestRates = $exchangeRateData->getRates(env('EXCHANGE_RATES_REQUIRED_CURRENCIES'), env('EXCHANGE_RATES_API_BASE'));
+    
+            foreach($latestRates as $latestRate)
+            {
+                $rate = self::where('symbol', '=', $latestRate->symbol);
+                $found_rate = $rate->get();
+    
+                if(count($found_rate) > 0)
+                {
+                    $latestRate->label = $found_rate[0]->currency_label;
+                }
+    
+                $rate->update(['rate' => $latestRate->rate]);
+    
+            }
         }
     
         return $latestRates;
