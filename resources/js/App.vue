@@ -7,8 +7,19 @@ export default{
         }
     },
     mounted() {
-        console.log(window.currencies)
         this.currencies = window.currencies
+    },
+    methods: {
+        refreshRates(e){
+            e.preventDefault()
+            let currentObj = this
+            axios
+            .get('./api/exchange_rates')
+            .then(response => {
+                this.currencies = response.data
+            })
+            .catch(error => console.log(error))
+        }
     }
 }
 </script>
@@ -37,7 +48,8 @@ export default{
                         </tr>
                     </tbody>
                 </table>
-                <button></button>
+                <br/>
+                <button v-on:click="refreshRates" type="button" class="btn btn-secondary">Refresh</button>
             </div>
             <div class="col-4 col-sm-2"></div>
         </div>
