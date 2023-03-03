@@ -33,19 +33,3 @@ services:
 networks:
   app-network:
     driver: bridge
-
-    # volumes:
-    #   - ./mysql/init.sql:/data/application/init.sql
-    #   - mysql_data:/var/lib/mysql
-  # client:
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile.node
-  #   container_name: client
-  #   volumes:
-  #     - ./:/var/www/
-  #     - /var/www/node_modules
-  #   depends_on:
-  #     - "server"
-# volumes:
-#   mysql_data:

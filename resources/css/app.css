@@ -5,3 +5,7 @@ table{
     border-style: solid;
     border-color: turquoise;
 }
+
+.table-header{
+    background-color: turquoise;
+}

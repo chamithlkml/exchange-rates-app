@@ -31,14 +31,14 @@ export default{
                 <h1>USD Exchange Rates</h1>
                 <br/>
                 <table>
-                    <thead style="background-color: turquoise;">
+                    <thead class="table-header">
                         <tr>
                             <th>US Dollar Exchange Rates</th>
                             <th></th>
                         </tr>
-                        <tr style="text-align: right">
-                            <th>1 USD = </th>
+                        <tr>
                             <th></th>
+                            <th>1 USD = </th>
                         </tr>
                     </thead>
                     <tbody v-for="currency in currencies">
