@@ -24,8 +24,6 @@ WORKDIR /var/www
 COPY composer.json composer.lock ./
 
 COPY . .
-#copy environment file
-COPY ./.env.example ./.env
 
 RUN composer install
 
