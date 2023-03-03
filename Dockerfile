@@ -21,15 +21,15 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www
 
-COPY composer.json composer.lock ./
+# COPY composer.json composer.lock ./
 
 COPY . .
 
 RUN composer install
 
-RUN php artisan key:generate --ansi
+# RUN php artisan key:generate --ansi
 
-RUN php artisan storage:link
+# RUN php artisan storage:link
 
 COPY ./script/php_script.sh /tmp
 
