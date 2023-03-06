@@ -1,25 +1,37 @@
 version: "4"
 services:
-  server:
-    build: .
-    command: npm run dev
-    container_name: server
-    ports:
-      - "${HTTP_PORT}:8000"
-    volumes:
-      - ./:/var/www/
-      - /var/www/vendor
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    restart: unless-stopped
+    tty: true
     depends_on:
       - mysql
     links:
       - mysql
+    volumes:
+      - ./:/var/www/html/
+    networks:
+      - app-network
+  
+  server:
+    image: nginx:alpine
+    container_name: server
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
     networks:
       - app-network
   mysql:
     image: mariadb:latest
     container_name: mysql
-    networks:
-      - app-network
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
@@ -29,7 +41,15 @@ services:
       MARIADB_PASSWORD: ${DB_PASSWORD}
     ports:
       - ${MYSQL_PORT}:3306
+    networks:
+      - app-network
+    volumes:
+      - dbdata:/var/lib/mysql
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

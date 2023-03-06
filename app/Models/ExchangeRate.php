@@ -20,10 +20,7 @@ class ExchangeRate extends Model
     {
         $lastUpdatedAt = self::max('updated_at');
 
-        if(is_null($lastUpdatedAt)){
-            $lastUpdatedAt = date(DATE_RFC2822);
-        }
-
+        # Calculate the time difference since last updated at time
         $timeDiffInSeconds = time() - strtotime($lastUpdatedAt);
 
         $latestRates = [];

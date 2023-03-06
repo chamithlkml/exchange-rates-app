@@ -1,6 +1,8 @@
-FROM php:latest
+FROM php:8.1-fpm
 
-LABEL version="1.0.0"
+COPY composer.lock composer.json /var/www/html/
+
+WORKDIR /var/www/html
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -11,30 +13,38 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     jpegoptim optipng pngquant gifsicle \
+    vim \
+    libonig-dev \
     unzip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    curl
+    
+RUN apt-get install -y git-core \
+    openssl \
+    libssl-dev
+
+RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
+apt-get install -y nodejs
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install pdo_mysql zip exif pcntl
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+COPY . /var/www/html
 
-WORKDIR /var/www
+RUN npm install
 
-# COPY composer.json composer.lock ./
+RUN npm run build
 
-COPY . .
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN composer update
 
 RUN composer install
 
-# RUN php artisan key:generate --ansi
+RUN chown -R www-data:www-data /var/www/html
 
-# RUN php artisan storage:link
+EXPOSE 9000
 
-COPY ./script/php_script.sh /tmp
-
-RUN chmod +x /tmp/php_script.sh
-
-ENTRYPOINT ["sh","/tmp/php_script.sh"]
-
-EXPOSE 8000
+CMD ["php-fpm"]
